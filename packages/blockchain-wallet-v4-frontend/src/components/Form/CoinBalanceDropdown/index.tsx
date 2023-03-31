@@ -72,6 +72,8 @@ class CoinBalanceDropdown extends PureComponent<Props> {
     const account = this.accountLabel(props)
     const isItem = !children
 
+    console.log({ account, balance, value: props?.value, selectProps: props?.selectProps })
+
     return (
       <DisplayContainer isItem={isItem}>
         <CoinAccountIcon accountType={props.value?.type} coin={this.props.coin} />
@@ -154,6 +156,7 @@ export type OwnProps = {
   includeInterest?: boolean
   name: 'earnDepositAccount'
   rates: RatesType
+  showCustodialFirst?: boolean
 }
 
 type Props = OwnProps & ConnectedProps<typeof connector>

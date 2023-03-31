@@ -48,6 +48,8 @@ class SelectBox extends React.PureComponent {
     const { error, invalid, pristine, touched } = meta
     const errorState = touched && invalid ? 'invalid' : 'initial'
 
+    console.log({ input, meta, rest })
+
     return (
       <Container className={className} zIndex={zIndex} data-e2e='dropdownSelect'>
         <SelectInput

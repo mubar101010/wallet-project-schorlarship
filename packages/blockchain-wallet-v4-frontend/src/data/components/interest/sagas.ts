@@ -772,11 +772,14 @@ export default ({ api, coreSagas, networks }: { api: APIType; coreSagas: any; ne
     const custodialBalances = (yield select(selectors.components.buySell.getBSBalances)).getOrFail(
       'Failed to get balances'
     )
-    const custodialAccount = (yield call(getCustodialAccountForCoin, coin)).getOrFail(
+    let custodialAccount = (yield call(getCustodialAccountForCoin, coin)).getOrFail(
       'Failed to fetch account'
     )
     yield call(createLimits, { custodialBalances, product })
     yield put(A.setPaymentSuccess({ payment: undefined }))
+
+    if (custodialAccount !== 'Failed to fetch account') {
+    }
 
     return custodialAccount
   }
@@ -890,9 +893,6 @@ export default ({ api, coreSagas, networks }: { api: APIType; coreSagas: any; ne
     payload
   }: ReturnType<typeof A.initializeActiveRewardsDepositForm>) {
     const { coin, currency } = payload
-    const coins = yield select(selectors.core.data.coins.getCoins)
-    const coinfig = coins[coin]?.coinfig
-    let initialAccount
 
     try {
       yield put(A.fetchActiveRewardsAccount({ coin }))
@@ -902,18 +902,23 @@ export default ({ api, coreSagas, networks }: { api: APIType; coreSagas: any; ne
       yield take([A.fetchActiveRewardsLimitsSuccess.type, A.fetchActiveRewardsLimitsFailure.type])
 
       // initialize the form depending upon account types for coin
-      if (coinfig.products.includes('PrivateKey')) {
-        initialAccount = yield call(initializeNonCustodialAccountForm, { coin, product: 'Active' })
-      } else {
-        initialAccount = yield call(initializeCustodialAccountForm, { coin, product: 'Active' })
-      }
+      const initialAccountnc = yield call(initializeNonCustodialAccountForm, {
+        coin,
+        product: 'Active'
+      })
+      const initialAccountc = yield call(initializeCustodialAccountForm, {
+        coin,
+        product: 'Active'
+      })
+
+      console.log({ initialAccountc, initialAccountnc, coin, currency })
 
       // finally, initialize the form
       yield put(
         initialize(ACTIVE_REWARDS_DEPOSIT_FORM, {
           coin,
           currency,
-          earnDepositAccount: initialAccount
+          earnDepositAccount: initialAccountc
         })
       )
     } catch (e) {
